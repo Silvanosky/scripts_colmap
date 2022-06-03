@@ -4,8 +4,13 @@ import shutil
 import sys
 
 if len(sys.argv) < 3:
-    print("[Source image dir] [Destination dir]")
+    print("[Source image dir] [Destination dir] [Optional .camera folder]")
     exit()
+
+cameraExport = ""
+if len(sys.argv) == 4:
+    print("Filtering by camera exportation")
+    cameraExport = sys.argv[3]
 
 srcDir = sys.argv[1]
 asrcDir = os.path.abspath(srcDir)
@@ -26,9 +31,13 @@ for root, dirs, files in os.walk(srcDir):
         print(filename)
         filename = filename.replace("/", "-")
         print(filename)
+        if cameraExport != "" and not os.path.exists(cameraExport + "/" + filename + ".camera"):
+            print("Skip image: " + filename + " because not oriented.")
+            continue
+
         #sympath = dstDir + "/" + root + "/" + file
-        rpath = os.path.relpath(path, start=os.path.dirname(dstDir))
-        print(rpath)
         dstFile = dstDir + "/" + filename
+        rpath = os.path.relpath(path, start=os.path.dirname(dstFile))
+        print(rpath)
         print("SymLink to " + dstFile)
         os.symlink(rpath, dstFile)
